@@ -1,0 +1,20 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>Server sent events</h1>
+    <div id="event"></div>
+    <script type="text/javascript">
+
+     var eventOutputContainer = document.getElementById("event");
+     var ws = new WebSocket("ws://localhost:8000/subscribe");
+
+     ws.onmessage = function(e) {
+         console.log(e.data);
+         ws.send(e.data)
+         eventOutputContainer.innerHTML += e.data + '<br>';
+     };
+
+    </script>
+  </body>
+</html>
