@@ -1,8 +1,12 @@
+from __future__ import print_function
+import sys
+
 from django.http import HttpResponse
 
 try:
     import uwsgi
 except:
+    print(" *** ERROR: Unable to talk to uWSGI", file=sys.stderr)
     pass
 
 def subscribe(request):
