@@ -9,22 +9,27 @@ def reader(uid, ws):
     while True:
         try:
             msg = ws.recv()
-            print(msg)
         except IOError:
-            return
+            break
+
+        print(msg)
 
 def writer(uid, ws):
     while True:
         gevent.sleep(1)
+        msg = "{uid} - {time}, clients = {nclients}".format(
+            uid=uid, time=time.time(),
+            nclients=len(clients))
+
         try:
-            ws.send("{uid} - {time}".format(
-                uid=uid, time=time.time()))
+            ws.send(msg)
         except IOError:
-            return
+            break
 
 class WebSocketUWSGI(object):
-    def __init__(self, request_context):
-        self.request_context = request_context
+    def __init__(self):
+        uwsgi.websocket_handshake()
+        self.request_context = uwsgi.request_context()
 
     def send(self, obj):
         uwsgi.websocket_send(obj, request_context=self.request_context)
@@ -32,17 +37,41 @@ class WebSocketUWSGI(object):
     def recv(self):
         return uwsgi.websocket_recv(request_context=self.request_context)
 
+clients = {}
+
+@gevent.spawn
+def zmqClient():
+    import zmq.green as zmq
+
+    context = zmq.Context()
+    socket = context.socket(zmq.PULL)
+    socket.connect('ipc://zmq.S')
+
+    while True:
+        server_msg = socket.recv()
+
+        print "*** sending {} to {} clients".format(server_msg, len(clients))
+
+        for uid,ws in clients.iteritems():
+            msg = "{uid} {msg}".format(
+                uid=uid, msg=server_msg)
+            try:
+                ws.send(msg)
+            except IOError:
+                print "error sending to {}".format(uid)
+
 def application(env, start_response):
-    print env['CC_USER']
+    print env['PATH_INFO']
+
+    ws = WebSocketUWSGI()
+
     uid = crypto.get_random_string()
-    uwsgi.websocket_handshake()
-
-    reqctx = uwsgi.request_context()
-    print reqctx
-    ws = WebSocketUWSGI(reqctx)
-
-    gevent.joinall([
-        gevent.spawn(writer, uid, ws),
-        gevent.spawn(reader, uid, ws),
-    ])
+    clients[uid] = ws
+    try:
+        gevent.joinall([
+            # gevent.spawn(writer, uid, ws),
+            gevent.spawn(reader, uid, ws),
+        ])
+    finally:
+        del clients[uid]
     return []

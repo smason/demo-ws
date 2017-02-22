@@ -17,7 +17,7 @@ djangoapp = get_wsgi_application()
 
 def application(env, start_response):
     def fake_response(status, headers, *args,**kwargs):
-        print repr(status), repr(headers), repr(args), repr(kwargs)
+        pass
 
     if env['PATH_INFO'] == '/subscribe':
         djangoapp(env, fake_response)

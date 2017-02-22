@@ -11,8 +11,8 @@
 
      ws.onmessage = function(e) {
          console.log(e.data);
-         ws.send(e.data)
          eventOutputContainer.innerHTML += e.data + '<br>';
+         ws.send(e.data)
      };
 
     </script>
