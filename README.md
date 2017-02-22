@@ -31,6 +31,11 @@ initialised.  I submitted [pull request #1473][issue1473] fixing this
 and am waiting to hear whether it's accepted.  Until then you might
 want to use my [fork of uWSGI][myuwsgi].
 
+I've submitted [another pull request (#1474)][issue1474] to the uWSGI
+repo as there seems to be another bug when using `gevent`.  Something
+is broken with reference counting and this appears to fix it for me.
+
 [myuwsgi]: https://github.com/smason/uwsgi
 [uwsgisse]: http://uwsgi-docs.readthedocs.io/en/latest/articles/OffloadingWebsocketsAndSSE.html
 [issue1473]: https://github.com/unbit/uwsgi/pull/1473
+[issue1474]: https://github.com/unbit/uwsgi/pull/1474
