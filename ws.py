@@ -44,8 +44,11 @@ def zmqClient():
     import zmq.green as zmq
 
     context = zmq.Context()
-    socket = context.socket(zmq.PULL)
+    socket = context.socket(zmq.SUB)
     socket.connect('ipc://zmq.S')
+
+    # subscribe to everything
+    socket.setsockopt(zmq.SUBSCRIBE, '')
 
     while True:
         server_msg = socket.recv()

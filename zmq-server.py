@@ -2,7 +2,7 @@ import time
 import zmq
 
 context = zmq.Context()
-socket = context.socket(zmq.PUSH)
+socket = context.socket(zmq.PUB)
 socket.bind('ipc://zmq.S')
 
 while True:
